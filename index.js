@@ -41,9 +41,30 @@ function handleMessage(message) {
     randomJoke();
   } else if (message.includes(' help')) {
     runHelp();
+  } else if (message.includes(' weather')) {
+    const zip = /\b\d{5}/.exec(message)[0];
+    currentWeather(zip);
+  } else if (message.includes(' icon')){
+    getIcon();
   }
+
 }
 
+// Get Current Weather
+function currentWeather(zip){
+  axios.get(`http://api.openweathermap.org/data/2.5/weather?zip=${zip}&units=imperial&appid=3a2b1eb49ad5b028d2982b13569c0883`)
+    .then(res => {
+      const temp = res.data.main.temp;
+      const city = res.data.name;
+      const icon = res.data.weather[0]["icon"];
+
+      const url = "http://openweathermap.org/img/w/" + icon + ".png";
+      const params = {
+        icon_url: url
+      };
+      bot.postMessageToChannel('general', `The temperature in ${city} is ${temp} F`, params);
+    }).catch(err => console.log(err));
+}
 // Tell a Chuck Norris Joke
 function chuckJoke() {
   axios.get('http://api.icndb.com/jokes/random').then(res => {
